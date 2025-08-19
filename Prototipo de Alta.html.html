@@ -1,0 +1,1220 @@
+<!doctype html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mapa de Acciones Empresariales - Ecuador</title>
+  <meta name="description" content="Guía interactiva para toma de decisiones empresariales en Ecuador: indicadores, mapa de decisiones, calculadora, noticias y fuentes oficiales." />
+
+  <!-- Tipografía -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind: primero config, luego CDN -->
+  <script>
+    window.tailwind = window.tailwind || {};
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 600: '#1A4E8A', 700: '#143E6C', 800: '#0E2E4F' },
+            accent: { 500: '#2BA6CB' }
+          },
+          fontFamily: { sans: ['Segoe UI', 'Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Iconos (no bloquea si falla) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Math.js para calculadora avanzada -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js"></script>
+
+  
+  <style>
+    /* Consolidated styles - Brand blue, no 'metalic' tones, consistent interactions */
+    :root {
+      --brand-blue: #1d7bea;
+      --brand-blue-600: #1563d8;
+      --brand-blue-300: #6fb1ff;
+      color-scheme: light;
+    }
+
+    /* Selection (texto resaltado) — sustituir tonos metálicos por azul suave */
+    ::selection { background: rgba(29,123,234,0.12); color: inherit; }
+    ::-moz-selection { background: rgba(29,123,234,0.12); color: inherit; }
+
+    /* Base typographic & background (conservadas) */
+    body {
+      background: linear-gradient(135deg, #f0f6ff 0%, #eef8ff 30%, #fff7ed 70%);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color: #0f172a;
+    }
+
+    /* Glass / cards / badges */
+    .glass { backdrop-filter: blur(8px); background-color: rgba(255,255,255,0.75); }
+    .card { border-radius: .75rem; border: 1px solid rgba(226,232,240,1); background: #fff; box-shadow: 0 6px 20px rgba(8,15,30,0.04); transition: transform .25s ease, box-shadow .25s ease; }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 10px 30px rgba(13,40,80,0.08); }
+    .badge { display:inline-flex; align-items:center; gap:.25rem; padding:.125rem .5rem; border-radius:9999px; font-size:.75rem; font-weight:500; }
+
+    /* Buttons: unified styles using brand blue */
+    .btn { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:.75rem; border:1px solid rgba(226,232,240,1); background: white; cursor:pointer; transition: transform .18s cubic-bezier(.2,.9,.2,1), box-shadow .18s ease, background .18s ease; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(29,123,234,0.06); }
+    .btn:active { transform: translateY(0) scale(.995); }
+    .btn-primary { background: linear-gradient(135deg, var(--brand-blue), var(--brand-blue-600)); color: #fff; border-color: transparent; box-shadow: 0 8px 28px rgba(29,123,234,0.12); }
+    .btn-primary:hover { filter: brightness(1.02); }
+
+    /* Tabs */
+    .tab-btn { padding:.5rem .75rem; border-radius:.65rem; transition: transform .18s ease, box-shadow .18s ease, background .18s ease; border:1px solid rgba(226,232,240,1); background: #fff; color: #0f172a; }
+    .tab-btn:hover { background: linear-gradient(135deg, rgba(29,123,234,0.12), rgba(29,123,234,0.06)); color: var(--brand-blue); box-shadow: 0 10px 26px rgba(29,123,234,0.06); transform: translateY(-2px); }
+    .tab-active { background: var(--brand-blue); color: #fff !important; border-color: transparent; box-shadow: 0 10px 36px rgba(29,123,234,0.14); transform: translateY(-3px); }
+
+    /* Priorities and filters */
+    .priority-filter { background: white; border:1px solid rgba(226,232,240,1); color: #0f172a; }
+    .priority-filter.tab-active { background: var(--brand-blue); color: #fff; border-color: transparent; box-shadow: 0 6px 18px rgba(29,123,234,0.12); }
+
+    /* Calc tabs */
+    .calc-tabs { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.75rem; }
+    .calc-tab { padding:.4rem .6rem; border-radius:.5rem; border:1px solid rgba(230,238,252,1); background:#fff; cursor:pointer; font-size:.9rem; transition: transform .16s ease, box-shadow .16s ease; }
+    .calc-tab.active, .calc-tab:focus { background: var(--brand-blue); color:#fff; box-shadow: 0 8px 18px rgba(29,123,234,0.10); transform: translateY(-2px); }
+
+    /* Inputs focus */
+    input:focus, textarea:focus, select:focus { outline: none; box-shadow: 0 8px 30px rgba(29,123,234,0.12); border-color: rgba(21,99,216,0.9); }
+
+    /* Code box */
+    pre.code-box { background:#0b1220; color:#e6eefc; padding:.5rem; border-radius:.5rem; overflow:auto; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; font-size:.85rem; }
+
+    /* Responsive iframe */
+    .genially-frame { width:100%; height:640px; border:0; border-radius:.5rem; box-shadow:0 6px 24px rgba(10,20,40,0.06); }
+    @media (max-width: 640px) { .genially-frame { height:420px; } }
+
+    /* Theme: dark mode (kept but with blue accents instead of metallic) */
+    .dark body { background: linear-gradient(135deg, #0d1117 0%, #1a202c 50%, #0f172a 100%); color: #e2e8f0; }
+    .dark .card { background: #0f172a; border-color: #1f2a44; color: #e6eefc; box-shadow: 0 8px 24px rgba(13,40,80,0.12); }
+    .dark header, .dark footer { background: #0b1220; color: #e2e8f0; }
+    .dark .tab-btn { background: #111827; color: #e2e8f0; border-color: #1f2a44; }
+    .dark .tab-btn:hover { background: rgba(29,123,234,0.06); color: #fff; }
+
+    /* Switch styling (unified) */
+    #darkSwitch { width: 42px; height: 24px; border-radius: 9999px; position: relative; appearance: none; background: linear-gradient(90deg, #e6f0ff, #f0f7ff); border: 1px solid rgba(29,123,234,0.12); box-shadow: inset 0 2px 6px rgba(0,0,0,0.04); cursor: pointer; transition: all .18s ease; }
+    #darkSwitch:before { content: ""; position: absolute; left: 4px; top: 4px; width: 16px; height: 16px; border-radius: 9999px; background: #fff; transition: transform .18s cubic-bezier(.2,.9,.2,1); box-shadow: 0 2px 6px rgba(13,40,80,0.08); }
+    #darkSwitch:checked { background: linear-gradient(90deg, var(--brand-blue-300), var(--brand-blue)); border-color: rgba(29,123,234,0.18); }
+    #darkSwitch:checked:before { transform: translateX(18px); }
+
+    /* Small layout tweak to keep header controls compact */
+    header .max-w-7xl > div.flex.items-center.justify-between > .hidden.sm\\:flex { gap: 0.6rem; align-items: center; }
+
+    /* Utility to avoid metallic class names */
+    .bg-metal, .metallic { background: transparent !important; }
+
+    /* Accessibility: ensure links keep readable contrast */
+    a { color: var(--brand-blue); }
+    a:hover, a:focus { text-decoration: underline; color: var(--brand-blue-600); outline: none; }
+
+    /* Micro animation */
+    @keyframes btn-pop { 0% { transform: scale(0.98);} 60% { transform: scale(1.03);} 100% { transform: scale(1);} }
+    .btn-animated { animation: btn-pop .36s ease both; }
+
+  
+    /* Styles for the section label above tabs */
+    #tabsSectionLabel h2 { margin: 0; padding: 0; }
+    #tabsSectionLabelText { color: #0f172a; font-weight: 600; }
+    #tabsSectionLabelLine { background: rgba(29,123,234,0.08); } /* default subtle line */
+    /* Active state when a tab is active */
+    #tabsSectionLabel.active #tabsSectionLabelText { color: var(--brand-blue); }
+    #tabsSectionLabel.active #tabsSectionLabelLine { background: linear-gradient(90deg, var(--brand-blue-300), var(--brand-blue)); height: 4px; border-radius: 6px; }
+</style>
+
+
+  <style>
+    /* Top info bar: más visible, azul y texto legible con icono de advertencia */
+    .top-info-bar {
+      background: linear-gradient(90deg, rgba(29,123,234,0.95), rgba(29,123,234,0.85));
+      color: #ffffff !important;
+      box-shadow: 0 6px 18px rgba(13,40,80,0.09);
+    }
+    .top-info-bar .max-w-7xl { padding-left: 1rem; padding-right: 1rem; }
+    .top-info-bar i[data-lucide="info"] { opacity: 0.95; color: rgba(255,255,255,0.95); }
+    .top-info-bar span { color: #ffffff !important; opacity: 0.98; font-weight: 600; }
+
+    /* Tabs nav area: ligero fondo azul para destacar la zona */
+    .tabs-nav {
+      display: inline-flex;
+      gap: 0.5rem;
+      padding: 0.6rem;
+      margin-top: 0.6rem;
+      border-radius: 0.6rem;
+      background: linear-gradient(90deg, rgba(29,123,234,0.06), rgba(29,123,234,0.02));
+      border: 1px solid rgba(29,123,234,0.06);
+      align-items: center;
+    }
+
+    /* Tab buttons: destacar al pasar y mantener en activo */
+    .tabs-nav .tab-btn { background: rgba(255,255,255,0.9); }
+    .tabs-nav .tab-btn:hover {
+      background: linear-gradient(90deg, rgba(29,123,234,0.12), rgba(29,123,234,0.06));
+      color: #fff;
+      box-shadow: 0 8px 22px rgba(29,123,234,0.08);
+      transform: translateY(-2px);
+    }
+    .tabs-nav .tab-btn.tab-active {
+      background: var(--brand-blue);
+      color: #fff !important;
+      box-shadow: 0 12px 34px rgba(29,123,234,0.16);
+    }
+
+    /* Make sure the section label is readable over the tabs area */
+    #tabsSectionLabelText { color: #0b1220; }
+    .tabs-nav + .tab-panel { margin-top: 0.25rem; }
+
+    /* If tabs-area sits over light background, keep contrast */
+    @media (min-width: 640px) {
+      .tabs-nav { padding: 0.65rem 0.9rem; }
+    }
+  </style>
+
+  <style>
+    /* Dark mode readability overrides */
+    .dark .top-info-bar {
+      background: linear-gradient(90deg,#07213a 0%, #041c33 100%) !important;
+      color: #e6f3ff !important;
+      box-shadow: 0 8px 26px rgba(2,8,23,0.6);
+    }
+    .dark .top-info-bar span, .dark .top-info-bar .h3, .dark .top-info-bar i { color: #e6f3ff !important; opacity: 1; }
+    .dark .tabs-nav {
+      background: linear-gradient(90deg, rgba(3,8,20,0.24), rgba(3,8,20,0.12));
+      border-color: rgba(29,123,234,0.10);
+    }
+    .dark .tabs-nav .tab-btn {
+      background: rgba(255,255,255,0.02);
+      color: #dbeafe;
+      border-color: rgba(255,255,255,0.03);
+    }
+    .dark .tabs-nav .tab-btn:hover {
+      background: rgba(29,123,234,0.14);
+      color: #fff;
+      box-shadow: 0 8px 22px rgba(3,10,25,0.6);
+    }
+    .dark .tabs-nav .tab-btn.tab-active {
+      background: linear-gradient(90deg, var(--brand-blue-300), var(--brand-blue)) !important;
+      color: #fff !important;
+      box-shadow: 0 14px 36px rgba(29,123,234,0.22);
+    }
+
+    /* General text and links */
+    .dark body { color: #e6eefc; background: linear-gradient(135deg,#071022 0%, #071426 50%, #041022 100%); }
+    .dark a { color: var(--brand-blue-300); }
+    .dark a:hover { color: var(--brand-blue); text-decoration: underline; }
+
+    /* Cards, panels, inputs */
+    .dark .card { background: linear-gradient(180deg, rgba(6,12,23,0.72), rgba(2,6,16,0.72)); border-color: rgba(255,255,255,0.03); color: #e6eefc; box-shadow: 0 10px 34px rgba(2,6,20,0.6); }
+    .dark pre.code-box { background: #031428; color: #dbeafe; }
+    .dark input, .dark textarea, .dark select {
+      background: rgba(255,255,255,0.02); color: #e6eefc; border-color: rgba(255,255,255,0.04);
+    }
+    .dark .small-muted { color: #9fb0c9; }
+
+    /* Buttons */
+    .dark .btn { background: rgba(255,255,255,0.02); color: #e6eefc; border-color: rgba(255,255,255,0.04); box-shadow: none; }
+    .dark .btn:hover { box-shadow: 0 10px 30px rgba(29,123,234,0.10); }
+    .dark .btn-primary { background: linear-gradient(135deg, var(--brand-blue-300), var(--brand-blue)); color: #fff; border-color: transparent; box-shadow: 0 12px 34px rgba(29,123,234,0.18); }
+
+    /* Selection */
+    .dark ::selection { background: rgba(29,123,234,0.22); color: #fff; }
+    .dark ::-moz-selection { background: rgba(29,123,234,0.22); color: #fff; }
+
+    /* Header/footer in dark */
+    .dark header { background: rgba(2,6,23,0.5); color: #e6eefc; border-bottom-color: rgba(255,255,255,0.03); }
+    .dark footer { background: rgba(2,6,23,0.5); color: #9fb0c9; border-top-color: rgba(255,255,255,0.03); }
+
+    /* Label above tabs */
+    .dark #tabsSectionLabelText { color: #e6eefc; }
+    .dark #tabsSectionLabelLine { background: rgba(29,123,234,0.14); height: 4px; border-radius: 6px; }
+
+    /* Make sure icons are visible */
+    .dark [data-lucide] { color: #e6eefc; opacity: 1; }
+
+    /* Table in amortization */
+    .dark table { color: #e6eefc; }
+    .dark table th { background: rgba(255,255,255,0.02); color: #dbeafe; }
+    .dark table td { background: rgba(255,255,255,0.01); color: #cfe6ff; }
+
+    /* Ensure contrast for small badges */
+    .dark .badge { background: rgba(255,255,255,0.03); color: #dbeafe; border: 1px solid rgba(255,255,255,0.03); }
+
+  </style>
+</head>
+
+<body class="text-slate-800">
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary-700 text-white">
+          <i data-lucide="map" class="h-5 w-5"></i>
+        </span>
+        <div>
+          <h1 class="text-lg sm:text-xl font-semibold text-primary-800">Mapa de Acciones Empresariales — Ecuador</h1>
+          <p class="text-xs text-slate-500">Guía institucional para emprender y decidir</p>
+        </div>
+      </div>
+      <div class="hidden sm:flex items-center gap-2">
+        <button id="printBtn" class="btn"><i data-lucide="download" class="h-4 w-4"></i> Exportar PDF</button>
+        <a id="openCalcBtn" href="#tab-calculadora" class="btn btn-primary">
+          <i data-lucide="calculator" class="h-4 w-4"></i> Calculadora
+        </a>
+      
+        <div class="flex items-center gap-2 ml-1"><label for="darkSwitch" class="text-sm">🌙</label>
+      <input type="checkbox" id="darkSwitch" class="h-5 w-5 cursor-pointer"></div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Aviso superior -->
+  <div class="bg-primary-700 text-white top-info-bar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 text-sm flex flex-wrap items-center gap-2">
+      <i data-lucide="info" class="h-4 w-4"></i>
+      <span>Indicadores y enlaces oficiales. Las noticias se actualizan automáticamente el <b>1.º de cada mes</b> (hora local).</span>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+    <!-- Tabs: Mapa aparece primero en el DOM y está activo por defecto -->
+    
+    <!-- Section label above tabs: shows active section with blue underline -->
+    <div id="tabsSectionLabel" class="mb-2">
+      <h2 class="text-base font-semibold text-slate-700 inline-block" style="position:relative; padding-bottom:6px;">
+        <span id="tabsSectionLabelText">Mapa Interactivo</span>
+        <span id="tabsSectionLabelLine" style="display:block; height:3px; background:transparent; position:absolute; left:0; right:0; bottom:0; border-radius:4px; transition: background .18s ease;"></span>
+      </h2>
+    </div>
+<nav class="flex flex-wrap gap-2 tabs-nav">
+      <button data-tab="tab-mapa" class="tab-btn px-3 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-sm font-medium tab-active">Mapa Interactivo</button>
+      <button data-tab="tab-indicadores" class="tab-btn px-3 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-sm font-medium">Indicadores</button>
+      <button data-tab="tab-noticias" class="tab-btn px-3 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-sm font-medium">Noticias</button>
+      <button data-tab="tab-asesora" class="tab-btn px-3 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-sm font-medium">Asesora</button>
+      <button data-tab="tab-fuentes" class="tab-btn px-3 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-sm font-medium">Fuentes</button>
+    </nav>
+
+    <!-- Indicadores -->
+    <section id="tab-indicadores" class="tab-panel hidden grid gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="card p-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold text-slate-700">PIB nominal</h3>
+            <a class="text-primary-700 text-xs hover:underline" href="https://www.bce.fin.ec" target="_blank" rel="noopener">BCE</a>
+          </div>
+          <p class="mt-2 text-2xl font-bold">$124.676,1 millones</p>
+          <p class="text-xs text-slate-500">Ecuador — Ago 2025</p>
+        </div>
+        <div class="card p-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold text-slate-700">PIB per cápita</h3>
+            <a class="text-primary-700 text-xs hover:underline" href="https://www.bce.fin.ec" target="_blank" rel="noopener">BCE</a>
+          </div>
+          <p class="mt-2 text-2xl font-bold">$6.939,3</p>
+          <p class="text-xs text-slate-500">Ecuador — Ago 2025</p>
+        </div>
+        <div class="card p-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold text-slate-700">Inflación anual</h3>
+            <a class="text-primary-700 text-xs hover:underline" href="https://www.ecuadorencifras.gob.ec" target="_blank" rel="noopener">INEC</a>
+          </div>
+          <p class="mt-2 text-2xl font-bold">0,72%</p>
+          <p class="text-xs text-slate-500">Jul 2025</p>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="trending-up" class="h-5 w-5 text-accent-500"></i>
+          <h3 class="font-semibold text-slate-700">Contexto y señales</h3>
+        </div>
+        <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+          <div class="p-3 rounded-lg bg-slate-50 border border-slate-200">
+            <span class="badge bg-green-100 text-green-700">Proyección 2025</span>
+            <p class="mt-2 font-medium">Crecimiento estimado 3% — recuperación tras -2% en 2024.</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 border border-slate-200">
+            <span class="badge bg-blue-100 text-blue-700">Estabilidad</span>
+            <p class="mt-2 font-medium">Dolarización y baja inflación favorecen planificación de precios.</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 border border-slate-200">
+            <span class="badge bg-amber-100 text-amber-700">Financiamiento</span>
+            <p class="mt-2 font-medium">Riesgo País a la baja mejora acceso a crédito paulatinamente.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mapa de decisiones: ahora solo el iframe genially (sin textos arriba) -->
+    <section id="tab-mapa" class="tab-panel space-y-4">
+      <div class="card p-4">
+        <!-- Solo el iframe: sin título ni texto -->
+        <iframe class="genially-frame" src="https://view.genially.com/689e489576dd2a8968e0515c/interactive-content-desicion-de-inversion" allowfullscreen></iframe>
+      </div>
+    </section>
+
+    <!-- Noticias (solo economía) -->
+    <section id="tab-noticias" class="tab-panel hidden">
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <h3 class="text-base sm:text-lg font-semibold text-slate-800">Noticias — Economía (Ecuador)</h3>
+          <p class="text-xs text-slate-500">Mostrando únicamente noticias de economía, finanzas o negocios (filtrado por palabras clave y dominio).</p>
+        </div>
+        <button id="btnRefreshNews" class="btn"><i data-lucide="refresh-cw" class="h-4 w-4"></i> Actualizar ahora</button>
+      </div>
+      <div id="newsStatus" class="text-sm text-slate-600 mt-1"></div>
+      <div id="contenedorNoticias" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-3"></div>
+    </section>
+
+    <!-- Asesora -->
+    <section id="tab-asesora" class="tab-panel hidden">
+      <div class="card p-4 flex items-start gap-4">
+        <img id="fotoFernanda" alt="Fernanda Briones" class="w-28 h-28 rounded-full object-cover border-2 border-primary-700 shadow-sm"
+          src="https://i.ibb.co/nvKVMSg/fernanda.jpg" />
+        <div class="min-w-0">
+          <h3 class="text-lg font-semibold text-slate-800">Fernanda Briones</h3>
+          <ul class="mt-1 text-sm text-slate-700 space-y-1">
+            <li>📧 <a class="text-primary-700 hover:underline" href="mailto:fernanda.briones@email.com">fernanda.briones@email.com</a></li>
+            <li>📞 <a class="text-primary-700 hover:underline" href="tel:+593983800760">+593 983 800 760</a></li>
+            <li>📸 <a class="text-primary-700 hover:underline" href="https://www.instagram.com/fernandabriones04?igsh=ODZiMmE5eGQ1NWhw" target="_blank" rel="noopener">@fernandabriones04</a></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Calculadora: título "Calculadora" -->
+    <section id="tab-calculadora" class="tab-panel hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="card p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <i data-lucide="calculator" class="h-5 w-5 text-primary-700"></i>
+            <h3 class="font-semibold text-slate-700">Calculadora</h3>
+          </div>
+
+          <div class="calc-tabs" id="calcTabs">
+            <button class="calc-tab active" data-mode="expr">Expresión</button>
+            <button class="calc-tab" data-mode="eq">Ecuación</button>
+            <button class="calc-tab" data-mode="calc">Deriv/Int</button>
+            <button class="calc-tab" data-mode="fin">Financiera</button>
+            <button class="calc-tab" data-mode="mat">Matrices</button>
+            <button class="calc-tab" data-mode="fx">Divisas</button>
+          </div>
+
+          <div id="calcContent">
+            <!-- Expresión -->
+            <div class="mode mode-expr">
+              <label class="block text-sm font-medium text-slate-700 mb-1">Evalúa / simplifica una expresión</label>
+              <input id="exprInput" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="p.ej. simplify((x^2-1)/(x-1)), or 2*sqrt(3)+log(10)" value="(50000*0.08) + 15000" />
+              <div class="mt-2 flex gap-2">
+                <button id="evalExprBtn" class="btn btn-primary"><i data-lucide="play" class="h-4 w-4"></i> Evaluar</button>
+                <button id="simplifyExprBtn" class="btn"><i data-lucide="italic" class="h-4 w-4"></i> Simplificar</button>
+                <button id="clearExpr" class="btn"><i data-lucide="trash" class="h-4 w-4"></i> Limpiar</button>
+              </div>
+              <div class="mt-3">
+                <div class="text-xs text-slate-500">Resultado (numérico y simbólico cuando apl.)</div>
+                <pre id="exprResult" class="code-box mt-2"></pre>
+              </div>
+            </div>
+
+            <!-- Ecuación -->
+            <div class="mode mode-eq hidden">
+              <label class="block text-sm font-medium text-slate-700 mb-1">Resuelve f(x)=0 (numérico)</label>
+              <input id="eqInput" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="p.ej. x^3-6*x^2+11*x-6" value="x^2-5*x+6" />
+              <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <input id="eqRangeA" type="number" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="x mínimo (bisección)" />
+                <input id="eqRangeB" type="number" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="x máximo (bisección)" />
+              </div>
+              <div class="mt-2 flex gap-2">
+                <button id="solveEqBtn" class="btn btn-primary"><i data-lucide="zap" class="h-4 w-4"></i> Encontrar raíz</button>
+                <button id="rootsBtn" class="btn"><i data-lucide="layers" class="h-4 w-4"></i> Buscar raíces</button>
+              </div>
+              <div class="mt-3">
+                <div class="text-xs text-slate-500">Salida</div>
+                <pre id="eqResult" class="code-box mt-2"></pre>
+              </div>
+            </div>
+
+            <!-- Derivadas / integrales -->
+            <div class="mode mode-calc hidden">
+              <label class="block text-sm font-medium text-slate-700 mb-1">Derivada simbólica / derivada numérica</label>
+              <input id="derivInput" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="p.ej. sin(x)^2 + x^3" value="x^3 + 2*x" />
+              <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <input id="derivAt" type="number" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="valor de x para derivada numérica (opcional)" />
+                <select id="derivVar" class="rounded-lg border border-slate-300 px-3 py-2">
+                  <option value="x">x</option>
+                </select>
+              </div>
+              <div class="mt-2 flex gap-2">
+                <button id="deriveBtn" class="btn btn-primary"><i data-lucide="hash" class="h-4 w-4"></i> Derivar</button>
+                <button id="integrateBtn" class="btn"><i data-lucide="square" class="h-4 w-4"></i> Integrar (numérico)</button>
+              </div>
+              <div class="mt-3">
+                <div class="text-xs text-slate-500">Salida</div>
+                <pre id="derivResult" class="code-box mt-2"></pre>
+                <div class="mt-3">
+                  <label class="block text-sm font-medium text-slate-700 mb-1">Integración numérica (Simpson)</label>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <input id="intA" type="number" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="a (límite inferior)" />
+                    <input id="intB" type="number" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="b (límite superior)" />
+                  </div>
+                  <div class="mt-2">
+                    <button id="computeIntegralBtn" class="btn btn-primary"><i data-lucide="tool" class="h-4 w-4"></i> Calcular integral</button>
+                  </div>
+                  <pre id="intResult" class="code-box mt-2"></pre>
+                </div>
+              </div>
+            </div>
+
+            <!-- Financiera -->
+            <div class="mode mode-fin hidden">
+              <label class="block text-sm font-medium text-slate-700 mb-1">NPV / IRR / Amortización</label>
+              <div class="grid grid-cols-1 gap-2">
+                <input id="cashflows" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="Flujos separados por comas; p.ej. -50000,15000,15000,15000,15000" value="-50000,15000,15000,15000,15000" />
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <input id="discountRate" type="number" step="0.01" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Tasa descuento (%)" value="10" />
+                  <input id="irrGuess" type="number" step="0.001" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Guess IRR (%)" value="10" />
+                </div>
+              </div>
+              <div class="mt-2 flex gap-2">
+                <button id="npvBtn" class="btn btn-primary">NPV</button>
+                <button id="irrBtn" class="btn">IRR</button>
+                <button id="amortBtn" class="btn">Amortización (préstamo)</button>
+              </div>
+
+              <div class="mt-3 hidden" id="amortSection">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <input id="loanPrincipal" type="number" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Principal" value="10000" />
+                  <input id="loanRate" type="number" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Tasa anual (%)" value="12" />
+                  <input id="loanYears" type="number" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Años" value="2" />
+                </div>
+                <div class="mt-2">
+                  <button id="computeAmort" class="btn btn-primary">Generar tabla</button>
+                </div>
+                <div class="mt-3 overflow-auto max-h-56">
+                  <table id="amortTable" class="w-full text-sm border-collapse"></table>
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <div class="text-xs text-slate-500">Resultados</div>
+                <pre id="finResult" class="code-box mt-2"></pre>
+              </div>
+            </div>
+
+            <!-- Matrices -->
+            <div class="mode mode-mat hidden">
+              <label class="block text-sm font-medium text-slate-700 mb-1">Operaciones con matrices</label>
+              <textarea id="matrixInput" rows="4" class="w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="Escribe la matriz como filas separadas por punto y coma: p.ej. [1 2; 3 4]" >[1 2; 3 4]</textarea>
+              <div class="mt-2 flex gap-2">
+                <button id="detBtn" class="btn btn-primary">Determinante</button>
+                <button id="invBtn" class="btn">Invertir</button>
+                <button id="eigBtn" class="btn">Eigen (numérico)</button>
+              </div>
+              <div class="mt-3">
+                <pre id="matResult" class="code-box mt-2"></pre>
+              </div>
+            </div>
+
+            <!-- FX -->
+            <div class="mode mode-fx hidden">
+              <label class="block text-sm font-medium text-slate-700 mb-1">Conversor de divisas (tasas editables)</label>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <input id="fxAmount" type="number" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Cantidad" value="100" />
+                <input id="fxFrom" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="De (p.ej. USD)" value="USD" />
+                <input id="fxTo" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="A (p.ej. EUR)" value="EUR" />
+              </div>
+              <div class="mt-2 flex gap-2">
+                <button id="fxConvertBtn" class="btn btn-primary">Convertir</button>
+                <button id="fxManageRates" class="btn">Editar tasas</button>
+              </div>
+              <div class="mt-3 hidden" id="ratesEditor">
+                <div class="text-xs text-slate-500">Formato JSON: {"USD":1,"EUR":0.92,"PEN":3.8}</div>
+                <textarea id="ratesJson" rows="5" class="w-full rounded-lg border border-slate-300 px-3 py-2 mt-2"></textarea>
+                <div class="mt-2 flex gap-2">
+                  <button id="saveRatesBtn" class="btn btn-primary">Guardar tasas</button>
+                  <button id="resetRatesBtn" class="btn">Restaurar por defecto</button>
+                </div>
+              </div>
+              <div class="mt-3">
+                <pre id="fxResult" class="code-box mt-2"></pre>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Panel derecho: resultados, pasos, recomendaciones -->
+        <div class="card p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <i data-lucide="bar-chart-3" class="h-5 w-5 text-accent-500"></i>
+            <h3 class="font-semibold text-slate-700">Salida y pasos</h3>
+          </div>
+          <div class="small-muted mb-2">Aquí se muestran resultados, pasos simplificados y tablas (cuando correspondan).</div>
+          <div id="calcOutput" class="space-y-3">
+            <div id="calcSummary" class="p-3 rounded-lg border border-slate-200 bg-slate-50"></div>
+            <div id="calcSteps" class="p-3 rounded-lg border border-slate-200 bg-white">
+              <strong>Detalles / Pasos:</strong>
+              <div id="calcStepsContent" class="mt-2 text-sm text-slate-700"></div>
+            </div>
+          </div>
+
+          <div class="mt-4 text-xs text-slate-500">
+            Nota: funciones simbólicas usan math.js; las integrales son numéricas (Simpson). Para CAS más potente use herramientas especializadas.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fuentes: añadí 5 recursos extra orientados a emprendimiento y asesoría -->
+    <section id="tab-fuentes" class="tab-panel hidden">
+      <div class="card p-5">
+        <h3 class="font-semibold text-slate-700 mb-3">Fuentes oficiales y especializadas</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+          <a class="p-3 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-between" href="https://www.bce.fin.ec" target="_blank" rel="noopener"><span>Banco Central del Ecuador (BCE)</span><i data-lucide="external-link" class="h-4 w-4"></i></a>
+          <a class="p-3 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-between" href="https://www.ecuadorencifras.gob.ec" target="_blank" rel="noopener"><span>INEC</span><i data-lucide="external-link" class="h-4 w-4"></i></a>
+          <a class="p-3 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-between" href="https://www.finanzas.gob.ec" target="_blank" rel="noopener"><span>MEF</span><i data-lucide="external-link" class="h-4 w-4"></i></a>
+
+          <!-- Fuentes de noticias economía (mantenidas) -->
+          <a class="p-3 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-between" href="https://www.primicias.ec/economia/" target="_blank" rel="noopener"><span>Primicias — Economía</span><i data-lucide="external-link" class="h-4 w-4"></i></a>
+          <a class="p-3 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-between" href="https://www.elcomercio.com/" target="_blank" rel="noopener"><span>El Comercio — Economía</span><i data-lucide="external-link" class="h-4 w-4"></i></a>
+          <a class="p-3 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-between" href="https://www.eluniverso.com/noticias/economia/" target="_blank" rel="noopener"><span>El Universo — Economía</span><i data-lucide="external-link" class="h-4 w-4"></i></a>
+          <a class="p-3 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-between" href="https://www.revistalideres.ec/" target="_blank" rel="noopener"><span>Revista Líderes — Negocios</span><i data-lucide="external-link" class="h-4 w-4"></i></a>
+
+          <!-- 5 fuentes extra orientadas a emprendimiento / asesoría -->
+          <a class="p-3 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-between" href="https://ecuador.endeavor.org/" target="_blank" rel="noopener"><span>Endeavor Ecuador — Emprendedores</span><i data-lucide="external-link" class="h-4 w-4"></i></a>
+          <a class="p-3 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-between" href="https://impulsaecuador.org/" target="_blank" rel="noopener"><span>Fundación Impulsa — Incubación / asesoría</span><i data-lucide="external-link" class="h-4 w-4"></i></a>
+          <a class="p-3 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-between" href="https://www.conquito.org.ec/emprendimiento-desarrollo-empresarial/" target="_blank" rel="noopener"><span>ConQuito — Programas de emprendimiento</span><i data-lucide="external-link" class="h-4 w-4"></i></a>
+          <a class="p-3 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-between" href="https://www.produccion.gob.ec/" target="_blank" rel="noopener"><span>Fondo Emprende / Ministerio — Convocatorias y fondos</span><i data-lucide="external-link" class="h-4 w-4"></i></a>
+          <a class="p-3 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-between" href="https://wayra.com/" target="_blank" rel="noopener"><span>Wayra / Telefónica — Aceleración e innovación</span><i data-lucide="external-link" class="h-4 w-4"></i></a>
+
+        </div>
+
+        <div class="mt-5">
+          <h4 class="font-semibold text-slate-700 mb-2">Transparencia y actualización</h4>
+          <p class="text-sm text-slate-700">
+            Noticias limitadas a secciones de economía y medios de negocios; las fuentes de emprendimiento listadas ofrecen apoyo, mentoría, convocatorias y aceleración (ver enlaces). Verifica requisitos y fechas en las páginas oficiales.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-sm text-slate-600 grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div>Hecho para emprender en Ecuador — estilo institucional y claro.</div>
+      <div id="footStamp">Cargando…</div>
+      <div class="flex gap-4">
+        <a href="#tab-fuentes" class="text-primary-700 hover:underline">Fuentes</a>
+        <a href="#tab-mapa" class="text-primary-700 hover:underline">Mapa</a>
+        <a href="#tab-calculadora" class="text-primary-700 hover:underline">Calculadora</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    (function() {
+      'use strict';
+      // icons
+      try { if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons(); } catch(e){}
+
+      // ---- Tabs (mapa abre por defecto)
+      const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+      const panels = Array.from(document.querySelectorAll('.tab-panel'));
+
+      function hideAll() {
+        panels.forEach(p => p.classList.add('hidden'));
+        tabButtons.forEach(b => b.classList.remove('tab-active'));
+        // Remove active class from section label
+        try { const label = document.getElementById('tabsSectionLabel'); if (label) label.classList.remove('active'); } catch(e){}
+      }
+      function showTabById(id) {
+        const panel = document.getElementById(id);
+        if (!panel) return false;
+        hideAll();
+        panel.classList.remove('hidden');
+        const btn = tabButtons.find(b => b.dataset.tab === id);
+        if (btn) btn.classList.add('tab-active');
+        try { history.replaceState(null, '', '#' + id); } catch(e) {}
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Update the section label above the tabs to match the active tab's text
+        try {
+          const label = document.getElementById('tabsSectionLabel');
+          const labelText = document.getElementById('tabsSectionLabelText');
+          if (label && labelText) {
+            // Determine display text: use the button's innerText if available
+            if (btn) {
+              labelText.textContent = btn.textContent.trim();
+            } else {
+              // fallback to id -> humanize
+              labelText.textContent = id.replace('tab-','').replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+            }
+            // Activate visual underline
+            label.classList.add('active');
+          }
+        } catch (e) { console.warn('label update error', e); }
+
+        return true;
+      }
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.dataset.tab;
+          if (!target) return;
+          showTabById(target);
+        });
+      });
+      // Default: hash o mapa (ahora mapa por defecto)
+      const initialHash = (location.hash || '').replace('#','');
+      const opened = initialHash ? showTabById(initialHash) : false;
+      if (!opened) showTabById('tab-mapa');
+      window.addEventListener('hashchange', () => {
+        const h = (location.hash || '').replace('#','');
+        if (h) showTabById(h);
+      });
+
+      // ---- Botones header
+      try {
+        const printBtn = document.getElementById('printBtn');
+        if (printBtn) printBtn.addEventListener('click', () => window.print());
+      } catch(e) { console.warn('print handler error', e); }
+
+      try {
+        const openCalcBtn = document.getElementById('openCalcBtn');
+        if (openCalcBtn) {
+          openCalcBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const ok = showTabById('tab-calculadora');
+            if (ok) setTimeout(() => { const inp = document.querySelector('#exprInput'); if (inp) inp.focus(); }, 200);
+          });
+        }
+      } catch(e){ console.warn('openCalc handler error', e); }
+
+      // ---- Foto Fernanda fallback (data URI provided, but keep fallback)
+      const FERN_PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent('<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><rect width="100%" height="100%" fill="#e2e8f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="14" fill="#475569">Foto no disponible</text></svg>');
+      const foto = document.getElementById('fotoFernanda');
+      if (foto) { foto.addEventListener('error', () => { if (foto.src !== FERN_PLACEHOLDER) foto.src = FERN_PLACEHOLDER; }); }
+
+      // ---- News: feeds + filtering (economía / finanzas / negocios)
+      const FEEDS = [
+        'https://news.google.com/rss/search?q=site:elcomercio.com+econom%C3%ADa&hl=es-419&gl=EC&ceid=EC:es-419',
+        'https://news.google.com/rss/search?q=site:eluniverso.com+econom%C3%ADa&hl=es-419&gl=EC&ceid=EC:es-419',
+        'https://news.google.com/rss/search?q=site:primicias.ec+econom%C3%ADa&hl=es-419&gl=EC&ceid=EC:es-419',
+        'https://news.google.com/rss/search?q=site:revistalideres.ec+negocios&hl=es-419&gl=EC&ceid=EC:es-419',
+        'https://news.google.com/rss/search?q=site:americaeconomia.com+economia&hl=es-419&gl=EC&ceid=EC:es-419',
+        'https://news.google.com/rss/search?q=site:gestion.pe+economia&hl=es-419&gl=EC&ceid=EC:es-419'
+      ];
+      const NEWS_KEY = 'newsCache_economia_v3';
+
+      // Allowed domains & keywords
+      const ALLOWED_DOMAINS = ['elcomercio.com','eluniverso.com','primicias.ec','revistalideres.ec','americaeconomia.com','gestion.pe','bce.fin.ec','finanzas.com','elcomercio'];
+      const rawKeywords = ['econom','financ','negoc','invers','mercad','banco','inflac','tasas','credito','crédito','impuest','tribut','emprend','startup','inversión','finanzas','economía','economia','negocios','capital','inversores','bolsa','cambio','interes','interés','sri','pib','ipc','inflacion','sector','export','exportac','import'];
+      function normalize(s){ return (s||'').toString().toLowerCase().normalize('NFKD').replace(/[^\w\s\-]/g,''); }
+      const KEYWORDS = rawKeywords.map(k => normalize(k));
+
+      function pathFromUrl(url){ try{ return new URL(url).pathname.toLowerCase(); }catch(e){ return ''; } }
+
+      async function fetchRSS(url) {
+        // Use public CORS proxy (allorigins) — if CORS blocks, cached version used
+        const prox = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+        const r = await fetch(prox, { cache: 'no-store' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const j = await r.json();
+        const xml = new window.DOMParser().parseFromString(j.contents, 'application/xml');
+        const items = Array.from(xml.querySelectorAll('item'));
+        return items.map(it => ({
+          title: it.querySelector('title')?.textContent?.trim() || 'Sin título',
+          link: it.querySelector('link')?.textContent?.trim() || '#',
+          description: it.querySelector('description')?.textContent?.trim() || '',
+          pubDate: new Date(it.querySelector('pubDate')?.textContent || Date.now()),
+          source: (xml.querySelector('channel > title')?.textContent || new URL(url).hostname).replace(/^https?:\/\//,'')
+        }));
+      }
+
+      // decide si un item está relacionado con economia/finanzas/negocios
+      function isEconomyRelated(item) {
+        const combined = normalize((item.title || '') + ' ' + (item.description || '') + ' ' + (item.source || ''));
+        const url = item.link || '';
+        const domain = (()=>{ try{ return (new URL(url)).hostname.replace(/^www\\./,'').toLowerCase(); }catch(e){ return ''; } })();
+        const path = normalize(pathFromUrl(url));
+
+        // 1) si viene de un dominio permitido, aceptamos
+        if (ALLOWED_DOMAINS.some(d => domain.includes(d))) return true;
+
+        // 2) si la ruta del link contiene términos claros
+        if (/econom|financ|negoc|business|businesses/i.test(path)) return true;
+
+        // 3) palabra clave en título o descripción
+        for (const k of KEYWORDS) if (combined.indexOf(k) !== -1) return true;
+
+        return false;
+      }
+
+      function fmtDate(date) {
+        try { return new Intl.DateTimeFormat('es-EC', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(date)); } catch { return (new Date(date)).toLocaleString(); }
+      }
+
+      function renderNews(list) {
+        const wrap = document.getElementById('contenedorNoticias');
+        wrap.innerHTML = '';
+        if (!list || !list.length) {
+          wrap.innerHTML = '<div class="text-sm text-slate-600">No hay noticias de economía para mostrar en este momento.</div>';
+          return;
+        }
+        list.slice(0, 24).forEach(n => {
+          const a = document.createElement('article');
+          a.className = 'card p-4';
+          a.innerHTML = `
+            <div class="flex items-center justify-between text-xs text-slate-500">
+              <span>${n.source}</span>
+              <time>${fmtDate(n.pubDate)}</time>
+            </div>
+            <h3 class="mt-2 font-semibold text-slate-800">
+              <a href="${n.link}" target="_blank" rel="noopener" class="hover:underline">${n.title}</a>
+            </h3>
+            <p class="mt-2 text-sm text-slate-600">${(n.description||'').slice(0,200)}</p>
+          `;
+          wrap.appendChild(a);
+        });
+      }
+
+      async function cargarNoticias(showStatus=true) {
+        const status = document.getElementById('newsStatus');
+        if (showStatus) status.textContent = 'Cargando noticias…';
+        try {
+          const results = (await Promise.allSettled(FEEDS.map(f => fetchRSS(f)))).flatMap(r => r.status === 'fulfilled' ? r.value : []);
+          // filter by relevance
+          const filtered = results.filter(i => i && i.title && i.link).filter(isEconomyRelated);
+          const sorted = filtered.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
+          renderNews(sorted);
+          localStorage.setItem(NEWS_KEY, JSON.stringify({ when: Date.now(), items: sorted }));
+          status.textContent = 'Noticias actualizadas.';
+        } catch (err) {
+          console.warn('Error cargando noticias', err);
+          const cache = localStorage.getItem(NEWS_KEY);
+          if (cache) {
+            const { items, when } = JSON.parse(cache);
+            renderNews(items);
+            status.textContent = 'Mostrando noticias en caché (' + fmtDate(when) + ').';
+          } else {
+            renderNews([]);
+            status.textContent = 'No fue posible cargar noticias.';
+          }
+        }
+      }
+      const btnRefreshNews = document.getElementById('btnRefreshNews');
+      if (btnRefreshNews) btnRefreshNews.addEventListener('click', () => cargarNoticias(true));
+      (function bootNews(){
+        const cache = localStorage.getItem(NEWS_KEY);
+        if (cache) {
+          const { items, when } = JSON.parse(cache);
+          renderNews(items);
+          const status = document.getElementById('newsStatus');
+          status.textContent = 'Mostrando noticias en caché (' + fmtDate(when) + '). Actualizando…';
+        }
+        cargarNoticias(!cache);
+      })();
+
+      // schedule monthly refresh (1st day)
+      function scheduleMonthlyRefresh() {
+        const now = new Date();
+        const firstThis = new Date(now.getFullYear(), now.getMonth(), 1, 0, 5, 0, 0);
+        const next = now < firstThis ? firstThis : new Date(now.getFullYear(), now.getMonth()+1, 1, 0, 5, 0, 0);
+        let ms = next - now;
+        const DAY = 24*60*60*1000;
+        if (ms > 20*DAY) ms = DAY;
+        setTimeout(() => { cargarNoticias(true); scheduleMonthlyRefresh(); }, Math.max(1000, ms));
+      }
+      scheduleMonthlyRefresh();
+
+      // ---- Footer sello
+      const foot = document.getElementById('footStamp');
+      if (foot) {
+        const dt = new Date();
+        try {
+          foot.textContent = 'Última carga: ' + new Intl.DateTimeFormat('es-EC', { dateStyle: 'medium', timeStyle: 'short' }).format(dt);
+        } catch {
+          foot.textContent = 'Última carga: ' + dt.toLocaleString();
+        }
+      }
+
+      // ---- Calculadora avanzada (math.js)
+      const mathjs = window.math;
+
+      // small helpers
+      function showResult(el, txt){ if(el) el.textContent = typeof txt === 'string' ? txt : JSON.stringify(txt, null, 2); }
+      function appendStep(txt){ const container = document.getElementById('calcStepsContent'); if(container) container.innerHTML = (container.innerHTML ? container.innerHTML + '<br>' : '') + '<div class="text-xs text-slate-600">• ' + txt + '</div>'; }
+
+      // tab switching inside calculator
+      const calcTabs = document.querySelectorAll('.calc-tab');
+      calcTabs.forEach(t => t.addEventListener('click', () => {
+        calcTabs.forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        const mode = t.dataset.mode;
+        document.querySelectorAll('#calcContent .mode').forEach(m => m.classList.add('hidden'));
+        const target = document.querySelector('#calcContent .mode-' + (mode === 'expr' ? 'expr' : (mode === 'eq' ? 'eq' : (mode === 'calc' ? 'calc' : mode))));
+        // simpler: show all .mode with matching part
+        document.querySelectorAll('#calcContent .mode').forEach(m => m.classList.add('hidden'));
+        document.querySelectorAll('#calcContent .mode-' + mode).forEach(e => e.classList.remove('hidden'));
+        // fallback: map explicit classes:
+        document.querySelectorAll('#calcContent .mode').forEach(m => m.classList.add('hidden'));
+        const classMap = { expr: '.mode-expr', eq: '.mode-eq', calc: '.mode-calc', fin: '.mode-fin', mat: '.mode-mat', fx: '.mode-fx' };
+        const sel = classMap[mode] || '.mode-expr';
+        document.querySelectorAll(sel).forEach(el => el.classList.remove('hidden'));
+      }));
+
+      // Evaluate expression
+      document.getElementById('evalExprBtn').addEventListener('click', () => {
+        const expr = document.getElementById('exprInput').value;
+        try {
+          const num = mathjs.evaluate(expr);
+          const sym = mathjs.simplify ? mathjs.simplify(expr).toString() : '';
+          showResult(document.getElementById('exprResult'), 'Numérico:\n' + (typeof num === 'object' ? JSON.stringify(num, null, 2) : String(num)) + (sym ? '\n\nSimbólico:\n' + sym : ''));
+          document.getElementById('calcSummary').textContent = 'Expresión evaluada';
+          appendStep('Evaluada: ' + expr);
+        } catch (e) { showResult(document.getElementById('exprResult'), 'Error: ' + e.message); }
+      });
+      document.getElementById('simplifyExprBtn').addEventListener('click', () => {
+        const expr = document.getElementById('exprInput').value;
+        try {
+          const s = mathjs.simplify(expr).toString();
+          showResult(document.getElementById('exprResult'), 'Simplificado:\n' + s);
+          appendStep('Simplificado: ' + expr + ' → ' + s);
+        } catch (e) { showResult(document.getElementById('exprResult'), 'Error: ' + e.message); }
+      });
+      document.getElementById('clearExpr').addEventListener('click', () => {
+        document.getElementById('exprInput').value = '';
+        document.getElementById('exprResult').textContent = '';
+      });
+
+      // Equation root finding: basic numeric methods
+      function evaluateAt(expr, x) {
+        try {
+          return Number(mathjs.evaluate(expr.replaceAll('^','**').replace(/([a-zA-Z])(?=\d)/g,'$1*'), {x: x}));
+        } catch { return NaN; }
+      }
+
+      function findRootBisection(expr, a, b, tol=1e-7, maxIter=100){
+        let fa = evaluateAt(expr, a);
+        let fb = evaluateAt(expr, b);
+        if (isNaN(fa) || isNaN(fb)) throw new Error('Evaluación inválida en los extremos.');
+        if (fa * fb > 0) throw new Error('No hay cambio de signo en el intervalo proporcionado.');
+        let mid, fm;
+        for (let i=0;i<maxIter;i++){
+          mid = (a+b)/2;
+          fm = evaluateAt(expr, mid);
+          if (Math.abs(fm) < tol) return mid;
+          if (fa * fm < 0) { b = mid; fb = fm; } else { a = mid; fa = fm; }
+        }
+        return mid;
+      }
+
+      function findRootsScanning(expr, min=-100, max=100, step=1){
+        const roots = [];
+        let a = min;
+        let fa = evaluateAt(expr, a);
+        for (let x = min+step; x <= max; x += step) {
+          const fb = evaluateAt(expr, x);
+          if (!isFinite(fa) || !isFinite(fb)) { a = x; fa = fb; continue; }
+          if (fa === 0) { roots.push(a); a = x; fa = fb; continue; }
+          if (fa*fb < 0) {
+            try {
+              const r = findRootBisection(expr, a, x, 1e-9, 200);
+              if (!roots.some(rr => Math.abs(rr - r) < 1e-6)) roots.push(r);
+            } catch(e){ /* ignore */ }
+          }
+          a = x; fa = fb;
+        }
+        return roots;
+      }
+
+      document.getElementById('solveEqBtn').addEventListener('click', () => {
+        const expr = document.getElementById('eqInput').value;
+        const aVal = document.getElementById('eqRangeA').value;
+        const bVal = document.getElementById('eqRangeB').value;
+        try {
+          let root;
+          if (aVal !== '' && bVal !== '') {
+            root = findRootBisection(expr, Number(aVal), Number(bVal));
+            showResult(document.getElementById('eqResult'), 'Raíz aproximada: ' + root);
+            appendStep('Raíz (bisección) en ['+aVal+','+bVal+']: ' + root);
+          } else {
+            // try scanning
+            const roots = findRootsScanning(expr, -200, 200, 1);
+            if (roots.length === 0) showResult(document.getElementById('eqResult'), 'No se encontraron raíces en el rango de búsqueda (-200,200). Prueba con un intervalo.');
+            else showResult(document.getElementById('eqResult'), 'Raíces encontradas:\n' + roots.map(r => r.toFixed(8)).join('\n'));
+            appendStep('Búsqueda de raíces (escanear): ' + (roots.length) + ' encontradas.');
+          }
+        } catch (e) {
+          showResult(document.getElementById('eqResult'), 'Error: ' + e.message);
+        }
+      });
+
+      document.getElementById('rootsBtn').addEventListener('click', () => {
+        const expr = document.getElementById('eqInput').value;
+        try {
+          const roots = findRootsScanning(expr, -500, 500, 0.5);
+          if (!roots.length) showResult(document.getElementById('eqResult'), 'No se encontraron raíces (búsqueda amplia).');
+          else showResult(document.getElementById('eqResult'), 'Raíces (aprox):\n' + roots.map(r => r.toFixed(8)).join('\n'));
+        } catch (e){ showResult(document.getElementById('eqResult'), 'Error: ' + e.message); }
+      });
+
+      // Derivative & numeric derivative
+      document.getElementById('deriveBtn').addEventListener('click', () => {
+        const expr = document.getElementById('derivInput').value;
+        const v = document.getElementById('derivVar').value || 'x';
+        try {
+          const d = mathjs.derivative(expr, v).toString();
+          let out = 'Derivada simbólica:\n' + d;
+          const at = document.getElementById('derivAt').value;
+          if (at !== '') {
+            const val = Number(at);
+            const numeric = mathjs.evaluate(d, { [v]: val });
+            out += '\n\nValor en ' + v + '=' + val + ' : ' + numeric;
+            appendStep('Derivada evaluada en ' + val + ' = ' + numeric);
+          }
+          showResult(document.getElementById('derivResult'), out);
+          appendStep('Derivada simbólica: ' + d);
+        } catch (e) {
+          showResult(document.getElementById('derivResult'), 'Error: ' + e.message);
+        }
+      });
+
+      // Simpson integration (numeric)
+      function simpsonIntegrate(f, a, b, n=1000) {
+        if (n % 2 === 1) n++;
+        const h = (b - a) / n;
+        let s = f(a) + f(b);
+        for (let i = 1; i < n; i++) {
+          const x = a + i * h;
+          s += (i % 2 === 0) ? 2 * f(x) : 4 * f(x);
+        }
+        return s * (h / 3);
+      }
+
+      document.getElementById('computeIntegralBtn').addEventListener('click', () => {
+        const expr = document.getElementById('derivInput').value;
+        const aEl = document.getElementById('intA').value;
+        const bEl = document.getElementById('intB').value;
+        if (aEl === '' || bEl === '') { showResult(document.getElementById('intResult'), 'Ingresa ambos límites (a y b).'); return; }
+        const a = Number(aEl), b = Number(bEl);
+        try {
+          const f = (x) => Number(mathjs.evaluate(expr, { x: x }));
+          const val = simpsonIntegrate(f, a, b, 1000);
+          showResult(document.getElementById('intResult'), 'Integral (Simpson) ≈ ' + val);
+          appendStep('Integral numérica de ' + a + ' a ' + b + ' ≈ ' + val);
+        } catch (e) { showResult(document.getElementById('intResult'), 'Error: ' + e.message); }
+      });
+
+      // Financial: NPV / IRR / Amortization
+      function parseCashflows(s){
+        return s.split(',').map(x => Number(x.trim())).filter(x => !isNaN(x));
+      }
+      document.getElementById('npvBtn').addEventListener('click', () => {
+        const flows = parseCashflows(document.getElementById('cashflows').value);
+        const r = Number(document.getElementById('discountRate').value)/100;
+        if (!flows.length) { showResult(document.getElementById('finResult'),'Flujos inválidos'); return; }
+        const npv = flows.reduce((acc, f, i) => acc + f / Math.pow(1 + r, i), 0);
+        showResult(document.getElementById('finResult'), 'NPV (@' + (r*100).toFixed(2) + '%) = ' + npv.toFixed(2));
+        appendStep('NPV calculado con r=' + r);
+      });
+
+      // IRR via Newton-Raphson with fallback scanning
+      function npvAtRate(flows, rate){
+        return flows.reduce((acc, f, i) => acc + f / Math.pow(1 + rate, i), 0);
+      }
+      function irr(flows, guess=0.1) {
+        let x0 = guess;
+        for (let iter=0; iter<100; iter++){
+          const f = npvAtRate(flows, x0);
+          // derivative of NPV wrt rate: sum -i * f_i / (1+rate)^(i+1)
+          let df = 0;
+          for (let i=1;i<flows.length;i++) df += -i * flows[i] / Math.pow(1 + x0, i+1);
+          if (Math.abs(df) < 1e-12) break;
+          const x1 = x0 - f / df;
+          if (!isFinite(x1)) break;
+          if (Math.abs(x1 - x0) < 1e-9) return x1;
+          x0 = x1;
+        }
+        // fallback: scan for sign changes
+        for (let r=-0.9999; r<10; r+=0.01){
+          const v = npvAtRate(flows, r);
+          const v2 = npvAtRate(flows, r+0.01);
+          if (v * v2 < 0) {
+            try { return findRootBisection((rr)=>{ return npvAtRate(flows, rr); }, r, r+0.01); } catch {}
+          }
+        }
+        return NaN;
+      }
+
+      document.getElementById('irrBtn').addEventListener('click', () => {
+        const flows = parseCashflows(document.getElementById('cashflows').value);
+        const guess = Number(document.getElementById('irrGuess').value)/100;
+        if (!flows.length) { showResult(document.getElementById('finResult'),'Flujos inválidos'); return; }
+        try {
+          const rate = irr(flows, guess);
+          if (!isFinite(rate) || isNaN(rate)) showResult(document.getElementById('finResult'),'IRR no convergió.');
+          else showResult(document.getElementById('finResult'),'IRR ≈ ' + (rate*100).toFixed(6) + '%');
+          appendStep('IRR estimada (guess ' + guess + '): ' + rate);
+        } catch(e){ showResult(document.getElementById('finResult'),'Error: ' + e.message); }
+      });
+
+      // Amortization
+      document.getElementById('amortBtn').addEventListener('click', () => {
+        document.getElementById('amortSection').classList.toggle('hidden');
+      });
+      document.getElementById('computeAmort').addEventListener('click', () => {
+        const P = Number(document.getElementById('loanPrincipal').value);
+        const annual = Number(document.getElementById('loanRate').value)/100;
+        const years = Number(document.getElementById('loanYears').value);
+        const m = years * 12;
+        const r = annual / 12;
+        if (!P || !isFinite(r) || !isFinite(m)) { showResult(document.getElementById('finResult'),'Datos del préstamo inválidos'); return; }
+        const payment = r === 0 ? P / m : (P * r) / (1 - Math.pow(1 + r, -m));
+        const table = document.getElementById('amortTable');
+        table.innerHTML = '<tr><th>Año</th><th>Pago</th><th>Interés</th><th>Principal</th><th>Saldo</th></tr>';
+        let saldo = P;
+        for (let i = 1; i <= m; i++) {
+          const interest = saldo * r;
+          const principal = payment - interest;
+          saldo = Math.max(0, saldo - principal);
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${i}</td><td>${payment.toFixed(2)}</td><td>${interest.toFixed(2)}</td><td>${principal.toFixed(2)}</td><td>${saldo.toFixed(2)}</td>`;
+          table.appendChild(tr);
+        }
+        showResult(document.getElementById('finResult'), 'Pago mensual ≈ ' + payment.toFixed(2));
+        appendStep('Amortización calculada (pago mensual ' + payment.toFixed(2) + ')');
+      });
+
+      // Matrices operations
+      document.getElementById('detBtn').addEventListener('click', () => {
+        const txt = document.getElementById('matrixInput').value;
+        try {
+          const A = mathjs.evaluate(txt);
+          const det = mathjs.det(A);
+          showResult(document.getElementById('matResult'), 'Determinante: ' + det);
+          appendStep('Determinante calculado');
+        } catch (e) { showResult(document.getElementById('matResult'), 'Error: ' + e.message); }
+      });
+      document.getElementById('invBtn').addEventListener('click', () => {
+        const txt = document.getElementById('matrixInput').value;
+        try {
+          const A = mathjs.evaluate(txt);
+          const inv = mathjs.inv(A);
+          showResult(document.getElementById('matResult'), inv);
+          appendStep('Inversa calculada');
+        } catch (e) { showResult(document.getElementById('matResult'), 'Error: ' + e.message); }
+      });
+      document.getElementById('eigBtn').addEventListener('click', () => {
+        const txt = document.getElementById('matrixInput').value;
+        try {
+          const A = mathjs.evaluate(txt);
+          // math.js doesn't include eig by default; attempt power method for dominant eigen
+          const n = A.length;
+          let v = Array(n).fill(1);
+          for (let k=0;k<100;k++){
+            const w = mathjs.multiply(A, v);
+            const norm = Math.hypot(...w);
+            v = w.map(x => x / (norm || 1));
+          }
+          const lambda = mathjs.multiply(mathjs.multiply(A, v), mathjs.dot(v, v) ? (1 / mathjs.dot(v, v)) : 1);
+          showResult(document.getElementById('matResult'), 'Autovector aproximado (dominante):\n' + JSON.stringify(v, null, 2) + '\n(sólo dominante).');
+          appendStep('Cálculo de autovector dominante (aprox.)');
+        } catch (e) { showResult(document.getElementById('matResult'), 'Error: ' + e.message); }
+      });
+
+      // FX: rates management (localStorage)
+      const RATES_KEY = 'fxRates_v1';
+      const defaultRates = { USD:1, EUR:0.92, PEN:3.8, GBP:0.78 };
+      function getRates(){ try{ return JSON.parse(localStorage.getItem(RATES_KEY)) || defaultRates; }catch{ return defaultRates; } }
+      document.getElementById('fxConvertBtn').addEventListener('click', () => {
+        const amt = Number(document.getElementById('fxAmount').value);
+        const from = (document.getElementById('fxFrom').value || '').toUpperCase();
+        const to = (document.getElementById('fxTo').value || '').toUpperCase();
+        const rates = getRates();
+        if (!isFinite(amt) || !from || !to) { showResult(document.getElementById('fxResult'), 'Datos inválidos'); return; }
+        if (!rates[from] || !rates[to]) { showResult(document.getElementById('fxResult'), 'Tasa no disponible para ' + from + ' o ' + to); return; }
+        const usd = amt / rates[from];
+        const dest = usd * rates[to];
+        showResult(document.getElementById('fxResult'), `${amt} ${from} ≈ ${dest.toFixed(4)} ${to} (tasas locales)`);
+        appendStep(`Conversión ${amt} ${from} → ${dest.toFixed(4)} ${to}`);
+      });
+      document.getElementById('fxManageRates').addEventListener('click', () => {
+        document.getElementById('ratesEditor').classList.toggle('hidden');
+        document.getElementById('ratesJson').value = JSON.stringify(getRates(), null, 2);
+      });
+      document.getElementById('saveRatesBtn').addEventListener('click', () => {
+        try {
+          const j = JSON.parse(document.getElementById('ratesJson').value);
+          localStorage.setItem(RATES_KEY, JSON.stringify(j));
+          showResult(document.getElementById('fxResult'), 'Tasas guardadas.');
+          appendStep('Tasas FX actualizadas');
+        } catch(e){ showResult(document.getElementById('fxResult'), 'JSON inválido'); }
+      });
+      document.getElementById('resetRatesBtn').addEventListener('click', () => {
+        localStorage.setItem(RATES_KEY, JSON.stringify(defaultRates));
+        document.getElementById('ratesJson').value = JSON.stringify(defaultRates, null, 2);
+        showResult(document.getElementById('fxResult'), 'Tasas restauradas por defecto.');
+      });
+
+      // small UI: initialize modes mapping (show/hide correctly)
+      (function initCalcModes(){
+        // show expr by default
+        document.querySelectorAll('#calcContent .mode').forEach(m => m.classList.add('hidden'));
+        document.querySelectorAll('.mode-expr').forEach(m => m.classList.remove('hidden'));
+      })();
+
+      // minimal icon refresh after dynamic changes
+      try { if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons(); } catch(e){}
+
+    })();
+  </script>
+
+    <script>
+      const darkSwitch = document.getElementById('darkSwitch');
+      darkSwitch?.addEventListener('change', () => {
+        if (darkSwitch.checked) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      });
+    </script>
+
+
+<script>
+  // Sync initial active tab visual state with label (por si la página carga con hash o por defecto)
+  (function(){
+    try {
+      const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+      const label = document.getElementById('tabsSectionLabel');
+      const labelText = document.getElementById('tabsSectionLabelText');
+      function updateFromActive() {
+        const active = tabButtons.find(b => b.classList.contains('tab-active'));
+        if (active) {
+          labelText.textContent = active.textContent.trim();
+          if (label) label.classList.add('active');
+        }
+      }
+      // run now and after a short delay (to catch initial JS that sets default tab)
+      updateFromActive();
+      setTimeout(updateFromActive, 300);
+      // also observe changes to tabs to update label immediately
+      tabButtons.forEach(b => b.addEventListener('click', () => { setTimeout(updateFromActive, 80); }));
+    } catch(e){ console.warn('sync label error', e); }
+  })();
+</script>
+</body>
+</html>
