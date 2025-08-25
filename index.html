@@ -266,7 +266,6 @@
         </div>
       </div>
       <div class="hidden sm:flex items-center gap-2">
-        <button id="printBtn" class="btn"><i data-lucide="download" class="h-4 w-4"></i> Exportar PDF</button>
         <a id="openCalcBtn" href="#tab-calculadora" class="btn btn-primary">
           <i data-lucide="calculator" class="h-4 w-4"></i> Calculadora
         </a>
@@ -539,7 +538,27 @@
                 <button id="fxManageRates" class="btn">Editar tasas</button>
               </div>
               <div class="mt-3 hidden" id="ratesEditor">
-                <div class="text-xs text-slate-500">Formato JSON: {"USD":1,"EUR":0.92,"PEN":3.8}</div>
+                <div class="text-xs text-slate-500">Formato JSON: { "USD": 1, "EUR": 0.92, "PEN": 3.8, "GBP": 0.78, "COP": 4100, "BRL": 5.1, "MXN": 17, "CLP": 840, "JPY": 155, "CNY": 7.0, "CAD": 1.35, "AUD": 1.50, "ARS": 350, "UYU": 38 }
+<div class="mt-2 p-3 rounded-lg border border-slate-200 bg-slate-50 text-sm">
+<strong>Monedas soportadas (códigos ISO 4217, usar mayúsculas):</strong>
+<ul class="mt-1 text-xs list-disc pl-5">
+<li><strong>USD</strong> — Dólar estadounidense</li>
+<li><strong>EUR</strong> — Euro</li>
+<li><strong>GBP</strong> — Libra esterlina</li>
+<li><strong>PEN</strong> — Sol peruano</li>
+<li><strong>COP</strong> — Peso colombiano</li>
+<li><strong>BRL</strong> — Real brasileño</li>
+<li><strong>MXN</strong> — Peso mexicano</li>
+<li><strong>CLP</strong> — Peso chileno</li>
+<li><strong>JPY</strong> — Yen japonés</li>
+<li><strong>CNY</strong> — Yuan chino</li>
+<li><strong>CAD</strong> — Dólar canadiense</li>
+<li><strong>AUD</strong> — Dólar australiano</li>
+<li><strong>ARS</strong> — Peso argentino</li>
+<li><strong>UYU</strong> — Peso uruguayo</li>
+</ul>
+<div class="mt-2"><strong>Cómo usarlas:</strong> en los campos <em>De</em> y <em>A</em> escribe sólo el código (ej. <code>USD</code>, <code>EUR</code>). Escribe la cantidad como número (ej. <code>100</code>). Para editar tasas abre <em>Editar tasas</em> y usa formato JSON exactamente como en el ejemplo, luego pulsa <em>Guardar tasas</em>.</div>
+</div></div>
                 <textarea id="ratesJson" rows="5" class="w-full rounded-lg border border-slate-300 px-3 py-2 mt-2"></textarea>
                 <div class="mt-2 flex gap-2">
                   <button id="saveRatesBtn" class="btn btn-primary">Guardar tasas</button>
@@ -1137,7 +1156,7 @@
 
       // FX: rates management (localStorage)
       const RATES_KEY = 'fxRates_v1';
-      const defaultRates = { USD:1, EUR:0.92, PEN:3.8, GBP:0.78 };
+      const defaultRates = { USD:1, EUR:0.92, PEN:3.8, GBP:0.78, COP:4100, BRL:5.1, MXN:17, CLP:840, JPY:155, CNY:7.0, CAD:1.35, AUD:1.50, ARS:350, UYU:38 };
       function getRates(){ try{ return JSON.parse(localStorage.getItem(RATES_KEY)) || defaultRates; }catch{ return defaultRates; } }
       document.getElementById('fxConvertBtn').addEventListener('click', () => {
         const amt = Number(document.getElementById('fxAmount').value);
